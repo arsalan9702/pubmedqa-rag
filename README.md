@@ -1,5 +1,7 @@
 # PubMed QA Assistant
 
+[![CI](https://github.com/arsalan9702/pubmedqa-rag/actions/workflows/ci.yml/badge.svg)](https://github.com/arsalan9702/pubmedqa-rag/actions/workflows/ci.yml)
+
 A retrieval-augmented generation (RAG) system for answering biomedical research questions, built on the PubMedQA dataset. Combines hybrid retrieval (dense + BM25), a custom fine-tuned BioBERT reranker, and grounded LLM generation to produce cited yes/no/maybe answers with supporting evidence.
 
 ---
@@ -57,32 +59,38 @@ Most RAG demos stop at "plug a vector DB into an LLM." This project asks a more 
 
 ```
 pubmedqa-rag/
+├── .github/
+│   └── workflows/
+│       └── ci.yml            # lint + test on every push/PR
 ├── data/
-│   ├── raw/                 # cached HF dataset downloads
-│   └── processed/           # cleaned chunks + QA pairs
+│   ├── raw/                  # cached HF dataset downloads
+│   └── processed/            # cleaned chunks + QA pairs
 ├── src/
-│   ├── preprocessing/       # data loading, chunking, indexing
-│   ├── retrieval/           # dense, BM25, hybrid retrievers
-│   ├── reranker/            # BioBERT cross-encoder: train + inference
-│   ├── generation/          # LLM answer generation
-│   └── evaluation/          # retrieval + answer metrics, ablations
-├── notebooks/                # Colab experiments (reranker training)
+│   ├── preprocessing/        # data loading, chunking, indexing
+│   ├── retrieval/            # dense, BM25, hybrid retrievers
+│   ├── reranker/              # BioBERT cross-encoder: train + inference
+│   ├── generation/           # LLM answer generation
+│   └── evaluation/            # retrieval + answer metrics, ablations
+├── tests/                     # pytest suite
+├── notebooks/                 # Colab experiments (reranker training)
 ├── app/
-│   └── streamlit_app.py     # demo UI
+│   └── streamlit_app.py      # demo UI
 ├── configs/
-│   └── config.yaml          # single source of truth for all settings
-└── requirements.txt
+│   └── config.yaml           # single source of truth for all settings
+├── pyproject.toml            # dependencies, ruff/black/pytest config
+└── uv.lock                   # locked dependency versions
 ```
 
 ## Setup
 
+This project uses [uv](https://github.com/astral-sh/uv) for environment and dependency management.
+
 ```fish
-git clone <your-repo-url>
+git clone git@github.com:arsalan9702/pubmedqa-rag.git
 cd pubmedqa-rag
 
-python3 -m venv venv
-source venv/bin/activate.fish
-pip install -r requirements.txt
+uv sync
+source .venv/bin/activate.fish
 
 cp .env.example .env    # add your free-tier LLM API key
 ```
@@ -90,20 +98,37 @@ cp .env.example .env    # add your free-tier LLM API key
 Load the dataset:
 
 ```fish
-python src/preprocessing/load_data.py
+uv run python src/preprocessing/load_data.py
 ```
 
 Build the index:
 
 ```fish
-python src/preprocessing/build_index.py
+uv run python src/preprocessing/build_index.py
 ```
 
 Run the app:
 
 ```fish
-streamlit run app/streamlit_app.py
+uv run streamlit run app/streamlit_app.py
 ```
+
+## Development
+
+Lint and format:
+
+```fish
+uv run ruff check .
+uv run black .
+```
+
+Run tests:
+
+```fish
+uv run pytest -v
+```
+
+All of the above run automatically on every push and pull request via GitHub Actions (see `.github/workflows/ci.yml`).
 
 ## Compute
 

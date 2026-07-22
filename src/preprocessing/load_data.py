@@ -1,11 +1,14 @@
 import os
-from datasets import load_dataset
+
 import pandas as pd
 import yaml
+from datasets import load_dataset
+
 
 def load_config(path="configs/config.yaml"):
     with open(path) as f:
         return yaml.safe_load(f)
+
 
 def main():
     cfg = load_config()
@@ -16,13 +19,15 @@ def main():
 
     records = []
     for row in split:
-        records.append({
-            "pubid": row["pubid"],
-            "question": row["question"],
-            "context": " ".join(row["context"]["contexts"]),
-            "long_answer": row["long_answer"],
-            "final_decision": row.get("final_decision"),
-        })
+        records.append(
+            {
+                "pubid": row["pubid"],
+                "question": row["question"],
+                "context": " ".join(row["context"]["contexts"]),
+                "long_answer": row["long_answer"],
+                "final_decision": row.get("final_decision"),
+            }
+        )
 
     df = pd.DataFrame(records)
     os.makedirs(cfg["data"]["processed_dir"], exist_ok=True)
@@ -30,6 +35,7 @@ def main():
 
     print(f"Saved {len(df)} records to {cfg['data']['qa_pairs_file']}")
     print(df["final_decision"].value_counts())
+
 
 if __name__ == "__main__":
     main()

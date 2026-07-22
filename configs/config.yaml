@@ -3,7 +3,7 @@ project:
   seed: 42
 
 data:
-  dataset_name: pubmed_qa
+  dataset_name: qiaojin/PubMedQA
   dataset_config: pqa_labeled       # switch to pqa_artificial for reranker pretraining
   raw_dir: data/raw
   processed_dir: data/processed
