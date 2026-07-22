@@ -1,0 +1,59 @@
+project:
+  name: pubmedqa-rag
+  seed: 42
+
+data:
+  dataset_name: pubmed_qa
+  dataset_config: pqa_labeled       # switch to pqa_artificial for reranker pretraining
+  raw_dir: data/raw
+  processed_dir: data/processed
+  chunks_file: data/processed/chunks.jsonl
+  qa_pairs_file: data/processed/qa_pairs.jsonl
+  train_split: 0.8
+  val_split: 0.1
+  test_split: 0.1
+
+embedding:
+  model_name: sentence-transformers/all-MiniLM-L6-v2
+  batch_size: 32
+  device: cpu
+
+vector_store:
+  backend: chroma                   # or faiss
+  persist_dir: data/processed/vector_store
+  collection_name: pubmed_abstracts
+
+retrieval:
+  top_k_dense: 20
+  top_k_bm25: 20
+  top_k_hybrid: 20
+  dense_weight: 0.5
+  bm25_weight: 0.5
+
+reranker:
+  base_model: dmis-lab/biobert-base-cased-v1.1   # generic bert-base-uncased for comparison run
+  max_length: 256
+  batch_size: 16
+  learning_rate: 2e-5
+  epochs: 3
+  top_k_output: 5
+  checkpoint_dir: src/reranker/checkpoints
+
+generation:
+  provider: groq                    # or openai
+  model_name: llama-3.1-8b-instant
+  temperature: 0.0
+  max_tokens: 512
+  prompt_template_path: src/generation/prompt_template.txt
+
+evaluation:
+  labeled_eval_file: data/processed/qa_pairs.jsonl
+  metrics:
+    - recall_at_k
+    - mrr
+    - answer_accuracy
+    - f1
+
+app:
+  title: "PubMed QA Assistant"
+  default_top_k: 5
