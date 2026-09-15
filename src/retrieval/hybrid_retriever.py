@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import yaml
-from bm25_retriever import BM25Retriever
-from dense_retriever import DenseRetriever
-
+from src.retrieval.bm25_retriever import BM25Retriever
+from src.retrieval.dense_retriever import DenseRetriever
 
 def load_config(path: str = "configs/config.yaml") -> dict:
     with open(path) as f:
